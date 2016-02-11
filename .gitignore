@@ -1,0 +1,12 @@
+.gradle
+build
+.idea
+.vertx
+file-uploads
+gradle
+gradlew.bat
+gradlew
+java-gradle.iml
+v_h_p_example.iml
+README.md
+src/test

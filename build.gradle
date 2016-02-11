@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+gradle
+
+
+
+
+dependencies {
+    compile 'io.vertx:vertx-core:3.2.0'
+    compile 'io.vertx:vertx-web:3.2.0'
+    compile 'io.vertx:vertx-hazelcast:3.2.0'
+    compile 'com.hazelcast:hazelcast:3.5.4'
+    compile 'com.hazelcast:hazelcast-client:3.5.4'
+    testCompile 'io.vertx:vertx-unit:3.2.0'
+    compile 'io.vertx:vertx-auth-shiro:3.2.0'
+}
+
+repositories {
+    mavenCentral()
+}
