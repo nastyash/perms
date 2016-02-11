@@ -6,7 +6,5 @@ file-uploads
 gradle
 gradlew.bat
 gradlew
-java-gradle.iml
-v_h_p_example.iml
-README.md
+perms.iml
 src/test
