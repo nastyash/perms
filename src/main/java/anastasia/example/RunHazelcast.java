@@ -11,8 +11,8 @@ import org.apache.shiro.authz.permission.WildcardPermission;
  */
 public class RunHazelcast {
     public static void main( String[] args ) {
-        HazelcastInstance hazelcastInstance =
+        //HazelcastInstance hazelcastInstance =
                 Hazelcast.newHazelcastInstance();
-        hazelcastInstance.getMap("permissions").put(1,new WildcardPermission("*"));
+        //hazelcastInstance.getMap("permissions").put(1,new WildcardPermission("*"));
     }
 }
