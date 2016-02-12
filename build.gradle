@@ -1,7 +1,25 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+//apply plugin: 'jooq'
 
-
+//
+//buildscript {
+//    repositories {
+//        jcenter()
+//        mavenCentral()
+//        maven {
+//            url 'https://plugins.gradle.org/m2/'
+//        }
+//    }
+//    dependencies {
+//        // jooq
+//        classpath 'org.jooq:jooq-codegen:3.7.1'
+//        classpath 'nu.studer:gradle-jooq-plugin:1.0.5'
+//        classpath 'org.postgresql:postgresql:9.4-1206-jdbc42'
+//    }
+//}
+//
+//apply plugin: 'nu.studer.jooq'
 
 
 
@@ -13,8 +31,68 @@ dependencies {
     compile 'com.hazelcast:hazelcast-client:3.5.4'
     testCompile 'io.vertx:vertx-unit:3.2.0'
     compile 'io.vertx:vertx-auth-shiro:3.2.0'
+//    compile 'org.jooq:jooq:3.7.1'
+//    compile 'org.jooq:jooq-meta:3.7.1'
+//    compile 'org.jooq:jooq-codegen:3.7.1'
 }
 
 repositories {
     mavenCentral()
 }
+
+//def dbGenerateFromEnv = false
+//def dbOutputPackage = 'anastasia.example.db'
+//
+//jooq {
+//
+//        jdbc {
+//            driver = 'org.postgresql.Driver'
+//            url = 'jdbc:postgresql://190.168.99.100:5432/jon'
+//            user = 'postgres'
+//            schema = 'public'
+//        }
+//        generator {
+//            name = 'org.jooq.util.DefaultGenerator'
+//            strategy {
+//                name = 'org.jooq.util.DefaultGeneratorStrategy'
+//            }
+//            database {
+//                name = 'org.jooq.util.postgres.PostgresDatabase'
+//                inputSchema = 'public'
+////                customTypes {
+////                    customType {
+////                        name = 'io.maxplay.platform.persistence.bindings.NotificationTypeBinding'
+////                        type = 'io.maxplay.platform.persistence.db.enums.NotificationType'
+////                        converter = 'io.maxplay.platform.persistence.bindings.NotificationTypeBinding'
+////                    }
+////                    forcedTypes {
+////                        forcedType {
+////                            name = 'io.maxplay.platform.persistence.bindings.NotificationTypeBinding'
+////                            expression = '.*\\.notification_type'
+////                        }
+////                    }
+////                }
+//            }
+//            generate {
+//                daos = true
+//                relations = true
+//                deprecated = false
+//                records = true
+//                // immutablePojos = true
+//                fluentSetters = true
+//            }
+//            target {
+//                packageName = dbOutputPackage
+//                directory = 'src/main/java'
+//            }
+//        }
+//    }
+//
+//    gradle.taskGraph.whenReady { taskGraph ->
+//        def tasks = taskGraph.getAllTasks()
+//        tasks.findAll {it.name =~ /generate.+JooqSchemaSource/}.each { task ->
+//            if (task.name != "generate${dbGenerateFromEnv}JooqSchemaSource") {
+//                task.enabled = false
+//            }
+//        }
+//}

@@ -19,136 +19,41 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 public class Server extends AbstractVerticle{
-    private static String PERM_MAP = "permissions";
-    private static String PERM_PATH = "/permissions/";
-    private static String PERM_ID = "permissionId";
-    private static String PERM_STR = "permission";
-    private Map<Long, WildcardPermission> permissions;
-    private IdGenerator idGen;
+    private static final String PERM_PATH = "/permissions/";
+    private static final String PERM_ID = "permissionId";
+    private static final String API_V1_ROOT = "/"; //"/mp-api/v1";
 
     @Override
     public void start() throws Exception{
 
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
+        Router v1 = Router.router(vertx);
+        router.mountSubRouter(API_V1_ROOT, v1);
 
-        ClientConfig clientConfig = new ClientConfig();
-        HazelcastInstance client = HazelcastClient.newHazelcastClient( clientConfig );
-        permissions = client.getMap(PERM_MAP);
-        idGen = client.getIdGenerator( "newId" );
-
-
-        router.route().handler(BodyHandler.create());
-        router.get("/hello/").handler(routingContext -> {
+        v1.route().handler(BodyHandler.create());
+        v1.get("/hello/").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
             response.end(" World!!");
         });
-        router.get(PERM_PATH + ":" + PERM_ID).handler(this::handleGetPermission);
-        router.delete(PERM_PATH + ":" + PERM_ID).handler(this::handleDeletePermission);
-        router.put(PERM_PATH + ":" + PERM_ID).handler(this::handleUpdatePermission);
-        router.post(PERM_PATH).handler(this::handleAddPermission);
-        router.get(PERM_PATH).handler(this::handleListPermissions);
+        v1.get(PERM_PATH + ":" + PERM_ID).handler(PermissionController::handleGetPermission);
+        v1.delete(PERM_PATH + ":" + PERM_ID).handler(PermissionController::handleDeletePermission);
+        v1.put(PERM_PATH + ":" + PERM_ID).handler(PermissionController::handleUpdatePermission);
+        v1.post(PERM_PATH).handler(PermissionController::handleAddPermission);
+        v1.get(PERM_PATH).handler(PermissionController::handleListPermissions);
 
-        router.get().handler(routingContext -> {
+        v1.delete("/roles/:roleId/permissions/:permissionId").handler(PermissionController::handleDeleteRolePermission);
+        v1.post("/roles/:roleId/permissions/").handler(PermissionController::handleAddRolePermission);
+        v1.put("/roles/:roleId/permissions/:permissionId").handler(PermissionController::handleChangeRolePermission);
+
+        v1.get("/groups/").handler(GroupController::handleListGroups);
+
+        v1.get().handler(routingContext -> {
 
             HttpServerResponse response = routingContext.response();
             response.end("Hello World!!");
         });
         server.requestHandler(router::accept).listen(8081);
-    }
-
-    private void handleDeletePermission(RoutingContext routingContext) {
-        Long permissionID = Long.parseLong(routingContext.request().getParam(PERM_ID));
-        HttpServerResponse response = routingContext.response();
-        if (permissionID == null) {
-            sendError(400, response);
-        } else {
-            WildcardPermission permission = permissions.get(permissionID);
-            if (permission == null) {
-                sendError(400, response);
-            } else {
-                permissions.remove(permissionID);
-                response.end("Permission was deleted");
-            }
-        }
-
-    }
-
-    private void handleListPermissions(RoutingContext routingContext) {
-        JsonArray arr = new JsonArray();
-        for (Long permissionId : permissions.keySet() ) {
-            arr.add(new JsonObject().put(PERM_ID,permissionId).put(PERM_STR,permissions.get(permissionId).toString()));
-        }
-        routingContext.response()
-                .putHeader("Content-Type", "application/json")
-                .end(arr.encodePrettily());
-
-    }
-
-    private void handleAddPermission(RoutingContext routingContext) {
-        //Integer permissionID = Integer.parseInt(routingContext.request().getParam("permissionId"));
-        HttpServerResponse response = routingContext.response();
-        Buffer body = routingContext.getBody();
-        if (parameterCheck(body)) {
-            sendError(400, response);
-        }
-        else {
-            JsonObject permissionJson = body.toJsonObject();
-            Long permissionId = idGen.newId();
-            WildcardPermission permission = new WildcardPermission(permissionJson.getValue(PERM_STR).toString());
-            permissions.put(permissionId, permission);
-            JsonObject permissionJsonNew = new JsonObject().put(PERM_ID, permissionId).put(PERM_STR, permission.toString());
-            response.putHeader("Content-Type", "application/json")
-                    .end(permissionJsonNew.toString());
-
-        }
-
-
-    }
-
-    private void handleUpdatePermission(RoutingContext routingContext) {
-        Long permissionID = Long.parseLong(routingContext.request().getParam(PERM_ID));
-        HttpServerResponse response = routingContext.response();
-        Buffer body = routingContext.getBody();
-        if (permissionID == null || parameterCheck(body)) {
-            sendError(400, response);
-        } else {
-            WildcardPermission permission = permissions.get(permissionID);
-            if (permission == null) {
-                sendError(400, response);
-            } else {
-                String permissionString = routingContext.getBodyAsJson().getValue(PERM_STR).toString();
-                WildcardPermission newPermission =  new WildcardPermission(permissionString);
-                permissions.replace(permissionID, newPermission);
-                JsonObject permissionJson = new JsonObject().put(PERM_ID, permissionID).put(PERM_STR, newPermission.toString());
-                response.putHeader("Content-Type", "application/json").end(permissionJson.toString());
-            }
-        }
-
-    }
-    private void handleGetPermission(RoutingContext routingContext) {
-        Long permissionID = Long.parseLong(routingContext.request().getParam(PERM_ID));
-        HttpServerResponse response = routingContext.response();
-        if (permissionID == null) {
-            sendError(400, response);
-        } else {
-            WildcardPermission permission = permissions.get(permissionID);
-            if (permission == null) {
-                sendError(400, response);
-            } else {
-                JsonObject permissionJson = new JsonObject().put(PERM_ID, permissionID).put(PERM_STR,permission.toString());
-                response.putHeader("Content-Type", "application/json").end(permissionJson.toString());
-            }
-        }
-
-    }
-
-    private void sendError(int statusCode, HttpServerResponse response) {
-        response.setStatusCode(statusCode).end("Ups, error...");
-    }
-
-    private boolean parameterCheck(Buffer body) {
-        return  (body.toString().isEmpty() || body.toJsonObject().getValue(PERM_STR) == null);
     }
 
 }
