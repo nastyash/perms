@@ -19,7 +19,7 @@ public class HazelcastConnection {
         this.client = HazelcastClient.newHazelcastClient( clientConfig);
         this.idGen = client.getIdGenerator( "newId" );
         //create one test role for add/delete/update its permissions
-        client.getMap("roles").put(1,new JsonObject().add("roleId", 1).add("roleName", "TEST_ROLE").add("permissions","{}"));
+        client.getMap("roles").put(1,new JsonObject().add("roleName", "TEST_ROLE").add("permissions","{}"));
     }
 
     public static HazelcastInstance getClient () {

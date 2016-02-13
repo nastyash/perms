@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-03/schema",
+  "id": "http://jsonschema.net",
+  "required": true,
+  "additionalProperties": false,
+  "properties": {
+    "groupName": {
+      "type"      : "string",
+      "required"  : true,
+      "minLength" : 1,
+      "maxLength" : 256
+    },
+    "permissions": {
+      "type"     : "array",
+      "required" : false,
+      "properties": {
+        "permissionId": {
+          "type": "integer",
+          "required": true
+        }
+      }
+    },
+    "users": {
+      "type"     : "array",
+      "required" : false,
+      "properties": {
+        "userId": {
+          "type": "integer",
+          "required": true
+
+        }
+      }
+    }
+  }
+}

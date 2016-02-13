@@ -1,27 +1,21 @@
 package anastasia.example;
 
 
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IdGenerator;
-
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import org.apache.shiro.authz.permission.WildcardPermission;
-import java.util.Map;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 public class Server extends AbstractVerticle{
+    private static final String API_V1_ROOT = "/"; //"/mp-api/v1";
+
     private static final String PERM_PATH = "/permissions/";
     private static final String PERM_ID = "permissionId";
-    private static final String API_V1_ROOT = "/"; //"/mp-api/v1";
+
+    private static final String GROUP_PATH = "/groups/";
+    private static final String GROUP_ID = "groupId";
 
     @Override
     public void start() throws Exception{
@@ -42,11 +36,11 @@ public class Server extends AbstractVerticle{
         v1.post(PERM_PATH).handler(PermissionController::handleAddPermission);
         v1.get(PERM_PATH).handler(PermissionController::handleListPermissions);
 
-        v1.delete("/roles/:roleId/permissions/:permissionId").handler(PermissionController::handleDeleteRolePermission);
-        v1.post("/roles/:roleId/permissions/").handler(PermissionController::handleAddRolePermission);
-        v1.put("/roles/:roleId/permissions/:permissionId").handler(PermissionController::handleChangeRolePermission);
-
-        v1.get("/groups/").handler(GroupController::handleListGroups);
+        v1.get(GROUP_PATH).handler(GroupController::handleListGroups);
+        v1.route().method(HttpMethod.GET).handler(GroupController::hadleGetGroup);
+        v1.route().method(HttpMethod.POST).handler(GroupController::handleAddGroup);
+        v1.route().method(HttpMethod.DELETE).handler(GroupController::handleDeleteGroup);
+        v1.route().method(HttpMethod.PUT).handler(GroupController::handleUpdateGroup);
 
         v1.get().handler(routingContext -> {
 
